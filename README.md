@@ -29,7 +29,9 @@ pnpm install
 pn run notebooks:dev
 ```
 
-You can find an example notebook under [`notebooks/hello_world.html`](./notebooks/hello_world.html)
+You can find an example notebook under [`notebooks/hello_world.html`](./notebooks/hello_world.html).
+
+You can use Vega-Lite directly from JavaScript.
 
 ## Dashboard
 
