@@ -1,3 +1,9 @@
+# Telecom Visualization Project
+
+## Dependencies
+- pnpm
+- python3.14
+
 ## Setup
 
 ```bash

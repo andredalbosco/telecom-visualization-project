@@ -1,0 +1,20 @@
+{
+  "scripts": {
+    "dev": "concurrently -n notebooks,dashboard -c blue,green \"pnpm notebooks:dev\" \"pnpm dashboard:dev\"",
+    "build": "pnpm notebooks:build && pnpm dashboard:build",
+    "notebooks:dev": "notebooks preview --root notebooks",
+    "notebooks:build": "notebooks build --root notebooks -- notebooks/*.html",
+    "dashboard:dev": "pnpm --dir dashboard dev",
+    "dashboard:build": "pnpm --dir dashboard build",
+    "dashboard:clean": "pnpm --dir dashboard clean"
+  },
+  "dependencies": {
+    "@fontsource-variable/inter": "^5.2.8",
+    "@fontsource-variable/source-serif-4": "^5.2.9",
+    "@fontsource-variable/spline-sans-mono": "^5.2.8",
+    "@observablehq/notebook-kit": "^2.1.4"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.3"
+  }
+}
