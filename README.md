@@ -29,9 +29,7 @@ pnpm install
 pn run notebooks:dev
 ```
 
-You can find an example notebook under [`notebooks/hello_world.html`](./notebooks/hello_world.html).
-
-You can use Vega-Lite directly from JavaScript.
+You can find an example notebook under [`notebooks/hello_world.html`](./notebooks/hello_world.html). You can use Vega-Lite directly from JavaScript.
 
 ## Dashboard
 
@@ -43,3 +41,8 @@ There's also a dashboard. Don't pay much attention to it now. It might possibly 
 pnpm install
 pnpm dashboard:dev
 ```
+
+## Resources
+- https://vega.github.io/vega-lite/
+- https://observablehq.com/@vega/hello-vega-embed
+- https://observablehq.com/framework/lib/vega-lite
