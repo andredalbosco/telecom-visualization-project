@@ -25,7 +25,7 @@ python3 -m uv run jupyter lab
 Javascript notebooks are written in [Notebook Kit](https://observablehq.com/notebook-kit/kit).
 
 ```
-pnpm install
+pn install
 pn run notebooks:dev
 ```
 
@@ -38,8 +38,8 @@ You can find an example notebook under [`notebooks/hello_world.html`](./notebook
 There's also a dashboard. Don't pay much attention to it now. It might possibly be useful later.
 
 ```
-pnpm install
-pnpm dashboard:dev
+pn install
+pn dashboard:dev
 ```
 
 ## Resources
