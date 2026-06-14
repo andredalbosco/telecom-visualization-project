@@ -4,3 +4,7 @@ node_modules/
 **/.observablehq/cache/
 notebooks/.observable/
 __pycache__
+external/
+output/
+.playwright-cli/
+.playwright-mcp/

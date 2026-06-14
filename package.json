@@ -1,20 +1,32 @@
 {
+  "type": "module",
   "scripts": {
     "dev": "concurrently -n notebooks,dashboard -c blue,green \"pnpm notebooks:dev\" \"pnpm dashboard:dev\"",
     "build": "pnpm notebooks:build && pnpm dashboard:build",
-    "notebooks:dev": "notebooks preview --root notebooks",
-    "notebooks:build": "notebooks build --root notebooks -- notebooks/*.html",
-    "dashboard:dev": "pnpm --dir dashboard dev",
-    "dashboard:build": "pnpm --dir dashboard build",
-    "dashboard:clean": "pnpm --dir dashboard clean"
+    "notebooks:dev": "notebooks preview --root . --template template.html",
+    "notebooks:build": "notebooks build --root . -- notebooks/*.html",
+    "dashboard:dev": "cd dashboard && observable preview",
+    "dashboard:build": "cd dashboard && observable build"
   },
   "dependencies": {
     "@fontsource-variable/inter": "^5.2.8",
     "@fontsource-variable/source-serif-4": "^5.2.9",
     "@fontsource-variable/spline-sans-mono": "^5.2.8",
-    "@observablehq/notebook-kit": "^2.1.4"
+    "@observablehq/framework": "^1.13.4",
+    "@observablehq/notebook-kit": "^2.1.4",
+    "d3-dsv": "^3.0.1",
+    "d3-time-format": "^4.1.0",
+    "vega": "^6.2.0",
+    "vega-embed": "^7.1.0",
+    "vega-lite": "^6.4.3",
+    "vega-lite-api": "^6.0.0",
+    "vega-tooltip": "^1.1.0"
   },
   "devDependencies": {
-    "concurrently": "^10.0.3"
+    "concurrently": "^10.0.3",
+    "rimraf": "^5.0.5"
+  },
+  "engines": {
+    "node": ">=18"
   }
 }

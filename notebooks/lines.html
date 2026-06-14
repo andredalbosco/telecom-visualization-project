@@ -1,0 +1,68 @@
+<!doctype html>
+<notebook theme="air">
+  <title>Line Tests</title>
+  <script id="1" type="text/markdown">
+    # Line Tests
+
+    Births per year for all names.
+  </script>
+  <script id="2" type="module" pinned="">
+    const data = await d3.dsv(";", "/data/dpt2020.csv", row => ({
+      sex: row.sexe === "1" ? "male" : row.sexe === "2" ? "female" : row.sexe,
+      first_name: row.preusuel,
+      birth_year: row.annais === "XXXX" ? null : +row.annais,
+      department: row.dpt,
+      count: +row.nombre,
+      is_rare_name: row.preusuel === "_PRENOMS_RARES",
+      is_unknown_department: row.dpt === "XX"
+    }));
+
+    const namesByYear = Array.from(
+      d3.rollup(
+        data.filter(d => !d.is_rare_name && d.birth_year != null),
+        rows => d3.sum(rows, d => d.count),
+        d => d.first_name,
+        d => d.birth_year
+      ),
+      ([first_name, years]) => Array.from(
+        years,
+        ([birth_year, count]) => ({first_name, birth_year, count})
+      )
+    ).flat().sort((a, b) =>
+      d3.ascending(a.first_name, b.first_name) ||
+      d3.ascending(a.birth_year, b.birth_year)
+    );
+  </script>
+  <script id="3" type="module" pinned="">
+    Plot.plot({
+      width: 760,
+      height: 420,
+      marginLeft: 70,
+      color: {
+        legend: true
+      },
+      x: {
+        label: "Year",
+        tickFormat: "d"
+      },
+      y: {
+        type: "log",
+        label: "Birth count",
+        grid: true
+      },
+      marks: [
+        Plot.lineY(namesByYear, {
+          x: "birth_year",
+          y: "count",
+          stroke: "first_name",
+          strokeOpacity: 0.35,
+          strokeWidth: 1,
+          tip: true
+        })
+      ]
+    })
+  </script>
+  <script id="4" type="module" pinned="">
+    Inputs.table(namesByYear)
+  </script>
+</notebook>

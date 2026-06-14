@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style type="text/css">
+      @import url("observable:styles/index.css");
+      @import url("@fontsource-variable/inter/wght.css");
+      @import url("@fontsource-variable/inter/wght-italic.css");
+      @import url("@fontsource-variable/source-serif-4/wght.css");
+      @import url("@fontsource-variable/source-serif-4/wght-italic.css");
+      @import url("@fontsource-variable/spline-sans-mono/wght.css");
+      @import url("@fontsource-variable/spline-sans-mono/wght-italic.css");
+    </style>
+    <script>
+      (() => {
+        const key = `notebook-scroll:${location.pathname}`;
+        let frame = 0;
+        let userInteracted = false;
+        let restoreUntil = 0;
+        let restoring = false;
+
+        const maxScrollY = () => Math.max(0, document.documentElement.scrollHeight - innerHeight);
+
+        const save = () => {
+          const maxY = maxScrollY();
+          const bottom = maxY > 0 && maxY - scrollY < 32;
+          sessionStorage.setItem(key, JSON.stringify({
+            y: Math.round(bottom ? maxY : scrollY),
+            bottom,
+            maxY
+          }));
+        };
+        window.__notebookSaveScroll = save;
+
+        const savedState = () => {
+          const value = sessionStorage.getItem(key);
+          if (!value) return null;
+          try {
+            const parsed = JSON.parse(value);
+            return typeof parsed === "number" ? {y: parsed, bottom: false} : parsed;
+          } catch {
+            return {y: Number(value), bottom: false};
+          }
+        };
+
+        const restore = () => {
+          const state = savedState();
+          if (!state || userInteracted) return;
+          const maxY = maxScrollY();
+          restoring = true;
+          if (state?.bottom) {
+            scrollTo(0, maxY);
+            requestAnimationFrame(() => {
+              restoring = false;
+            });
+            return;
+          }
+          const y = Number(state?.y);
+          if (!Number.isFinite(y) || y <= 0) {
+            restoring = false;
+            return;
+          }
+          scrollTo(0, Math.min(y, maxY));
+          requestAnimationFrame(() => {
+            restoring = false;
+          });
+        };
+
+        const restoreWhileGrowing = () => {
+          restore();
+          if (!userInteracted && performance.now() < restoreUntil) {
+            requestAnimationFrame(restoreWhileGrowing);
+          } else {
+            save();
+          }
+        };
+
+        addEventListener("scroll", () => {
+          if (restoring) return;
+          cancelAnimationFrame(frame);
+          frame = requestAnimationFrame(save);
+        }, {passive: true});
+
+        for (const event of ["wheel", "touchstart", "pointerdown", "keydown"]) {
+          addEventListener(event, () => {
+            userInteracted = true;
+            save();
+          }, {passive: true});
+        }
+
+        addEventListener("beforeunload", save);
+        addEventListener("pagehide", save);
+        addEventListener("visibilitychange", () => {
+          if (document.visibilityState === "hidden") save();
+        });
+
+        addEventListener("load", () => {
+          restoreUntil = performance.now() + 5000;
+          requestAnimationFrame(restoreWhileGrowing);
+        });
+      })();
+    </script>
+    <script type="module">
+      if (import.meta.hot) {
+        const save = () => window.__notebookSaveScroll?.();
+        import.meta.hot.on("vite:beforeFullReload", save);
+        import.meta.hot.on("vite:beforeUpdate", save);
+      }
+    </script>
+  </head>
+  <body>
+    <main></main>
+  </body>
+</html>

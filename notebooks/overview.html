@@ -1,10 +1,228 @@
 <!doctype html>
-<notebook>
-  <title>Hello, world!</title>
-  <script type="text/markdown">
-    # Hello, world!
+<notebook theme="air">
+  <title>Data Overview</title>
+  <script id="1" type="text/markdown">
+    # Data Overview
   </script>
-  <script type="module" pinned>
-    1 + 2
+  <script id="17" type="text/x-typescript" pinned="">
+    // import * as vega from "npm:vega";
+    // import * as vegaLite from "npm:vega-lite";
+    // import * as vegaLiteApi from "npm:vega-lite-api";
+    // import * as vegaTooltip from "npm:vega-tooltip";
+
+    // const vl = vegaLiteApi.register(vega, vegaLite);
+  </script>
+  <script id="2" type="module" pinned="">
+    const data = await d3.dsv(";", '/data/dpt2020.csv', row => ({
+      sex: row.sexe === "1" ? "male" : row.sexe === "2" ? "female" : row.sexe,
+      first_name: row.preusuel,
+      birth_year: row.annais === "XXXX" ? null : +row.annais,
+      department: row.dpt,
+      count: +row.nombre,
+      is_rare_name: row.preusuel === "_PRENOMS_RARES",
+      is_unknown_department: row.dpt === "XX"
+    }));
+
+    const dataWithName = data.filter(d => !d.is_rare_name);
+    const dataWithYear = data.filter((d) => d.birth_year != null);
+  </script>
+  <script id="3" type="module" pinned="">
+    Inputs.table(d3.shuffle(data.slice()).slice(0, 1000))
+  </script>
+  <script id="4" type="text/markdown">
+    ## Births per year
+  </script>
+  <script id="5" type="module" pinned="">
+    const birthCountPerYear = Array.from(
+      d3.rollup(dataWithYear, rows => d3.sum(rows, d => d.count), d => d.birth_year),
+      ([birth_year, count]) => ({birth_year, count})
+    ).sort((a, b) => d3.ascending(a.birth_year, b.birth_year));
+  </script>
+  <script id="6" type="module" pinned="">
+    Plot.plot({
+      width: 760,
+      height: 420,
+      marginLeft: 70,
+      x: {label: "Year", tickFormat: "d"},
+      y: {label: "Birth count", grid: true},
+      marks: [
+        Plot.ruleY([0]),
+        Plot.lineY(birthCountPerYear, {x: "birth_year", y: "count", strokeWidth: 1}),
+      ]
+    })
+  </script>
+  <script id="7" type="text/markdown">
+    ## Unique names per year
+  </script>
+  <script id="8" type="module" pinned="">
+    const uniqueNameCountPerYear = Array.from(
+      d3.rollup(
+        dataWithName.filter(d => d.birth_year != null),
+        rows => new Set(rows.map(d => d.first_name)).size,
+        d => d.birth_year
+      ),
+      ([birth_year, count]) => ({birth_year, count})
+    ).sort((a, b) => d3.ascending(a.birth_year, b.birth_year));
+  </script>
+  <script id="9" type="module" pinned="">
+    Plot.plot({
+      x: {label: "Year", tickFormat: "d"},
+      y: {label: "Unique birth names", grid: true},
+      marks: [
+        Plot.lineY(uniqueNameCountPerYear, {x: "birth_year", y: "count"}),
+        Plot.ruleY([0]),
+      ]
+    })
+  </script>
+  <script id="10" type="text/markdown">
+    ## Top names
+  </script>
+  <script id="11" type="module" pinned="">
+    const nameCounts = Array.from(
+      d3.rollup(dataWithName, rows => d3.sum(rows, d => d.count), d => d.first_name),
+      ([first_name, count]) => ({first_name, count})
+    )
+    const topNames = nameCounts
+      .sort((a, b) => d3.descending(a.count, b.count))
+      .slice(0, 10);
+  </script>
+  <script id="12" type="module" pinned="">
+    Inputs.table(topNames)
+  </script>
+  <script id="13" type="text/markdown">
+    ## Plot: top names bar chart
+  </script>
+  <script id="14" type="module" pinned="">
+    Plot.plot({
+      width: 760,
+      height: 420,
+      marginBottom: 80,
+      marginLeft: 60,
+      x: {
+        label: null,
+        tickRotate: 0,
+      },
+      y: {
+        label: "Birth count",
+        grid: true
+      },
+      marks: [
+        Plot.barY(topNames, {
+          x: "first_name",
+          y: "count",
+          sort: {x: "-y"},
+          fill: "steelblue",
+        }),
+      ]
+    })
+
+  </script>
+  <script id="15" type="text/markdown">
+    ## Vega-Lite: top names bar chart
+  </script>
+  <script id="18" type="text/x-typescript" pinned="">
+    // import * as vega from "npm:vega";
+    // import * as vegaLite from "npm:vega-lite";
+    // import * as vegaLiteApi from "npm:vega-lite-api";
+    // import * as vegaTooltip from "npm:vega-tooltip";
+
+    // const vl = vegaLiteApi.register(vega, vegaLite, vegaTooltip);
+
+    // import * as vega from "npm:vega";
+    // import * as vegaLite from "npm:vega-lite";
+    // import * as vegaTooltip from "npm:vega-tooltip";
+    // import * as vl from "npm:vega-lite-api";
+
+    // const formatTooltip = (value, sanitize) => {
+    //   if (value == null || value === "") return "";
+    //   if (typeof value !== "object" || Array.isArray(value)) return sanitize(value);
+
+    //   const rows = Object.entries(value)
+    //     .filter(([, value]) => value !== undefined)
+    //     .map(([key, value]) => `<div style="display:flex;gap:8px;line-height:1.25;"><span style="min-width:72px;text-align:right;color:#808080;">${sanitize(key)}</span><span>${sanitize(value)}</span></div>`);
+
+    //   return `<div style="font-size:11px;font-family:sans-serif;line-height:1.25;">${rows.join("")}</div>`;
+    // };
+
+    // vl.register(vega, vegaLite, {
+    //   init: (view) => {
+    //     view.tooltip(new vegaTooltip.Handler({formatTooltip}).call);
+    //   },
+    //   view: {
+    //     renderer: "svg"
+    //   }
+    // });
+  </script>
+  <script id="16" type="module" pinned="">
+    vl.render({
+      spec: {
+        width: 680,
+        height: 320,
+        data: {values: topNames},
+        mark: {type: "bar", color: "steelblue"},
+        encoding: {
+          y: {
+            field: "first_name",
+            type: "nominal",
+            sort: "-x",
+            title: null
+          },
+          x: {
+            field: "count",
+            type: "quantitative",
+            title: "Birth count"
+          },
+          tooltip: [
+            {field: "first_name", type: "nominal", title: "Name"},
+            {field: "count", type: "quantitative", title: "Birth count", format: ","}
+          ]
+        }
+      },
+    })
+  </script>
+  <script id="19" type="application/vnd.observable.javascript" pinned="">
+    vl.markBar({color: "steelblue", tooltip: true})
+      .data(topNames)
+      .width(680)
+      .height(320)
+      .encode(
+        vl.y().fieldN("first_name").sort("-x").title(null),
+        vl.x().fieldQ("count").title("Birth count"),
+        vl.tooltip([
+          vl.tooltip().field("first_name").type("nominal").title("Name"),
+          vl.tooltip().field("count").type("quantitative").title("Birth count").format(",")
+        ])
+      )
+      .render()
+  </script>
+  <script id="21" type="text/x-typescript" pinned="">
+    const spec = vl.markBar({color: "steelblue", tooltip: true})
+      .data(topNames)
+      .width(680)
+      .height(320)
+      .encode(
+        vl.y().fieldN("first_name").sort("-x").title(null),
+        vl.x().fieldQ("count").title("Birth count"),
+        vl.tooltip([
+          vl.tooltip().field("first_name").type("nominal").title("Name"),
+          vl.tooltip().field("count").type("quantitative").title("Birth count").format(",")
+        ])
+      ).toSpec()
+    import vegaEmbed from 'npm:vega-embed';
+
+  </script>
+  <script id="25" type="text/x-typescript" pinned="">
+    function embed(spec) {
+      const el =
+      vegaEmbed(display(html`<div></div>`), spec);
+    }
+
+    // const el = html`<div></div>`;
+    // vegaEmbed(el, spec, {actions: false});
+    // display(el);
+    embed(spec)
+  </script>
+  <script>
+    console.log("Hellhowefrwrsftffrasddfsre")
   </script>
 </notebook>
