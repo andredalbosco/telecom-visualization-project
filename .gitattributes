@@ -1,0 +1,2 @@
+Chloropleth[[:space:]]maps[[:space:]]in[[:space:]]Altair_9sketches/*.json filter=lfs diff=lfs merge=lfs -text
+Chloropleth[[:space:]]maps[[:space:]]in[[:space:]]Altair_9sketches/*.csv filter=lfs diff=lfs merge=lfs -text
