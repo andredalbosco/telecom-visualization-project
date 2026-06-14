@@ -2,6 +2,13 @@
 
 This is our initial implementation for the IGR204 Baby Names mini-project.
 
+Authors:
+- Arina Konnova (arina.konnova@ip-paris.fr)
+- Amélien Le Meur (amelien.lemeur@ip-paris.fr)
+- André Dal Bosco (andre.dalbosco@ip-paris.fr)
+- Reda Elwaradi (reda.elwaradi@telecom-paris.fr)
+- Julien Gimenez (julien.gimenez@telecom-paris.fr)
+
 Course page: https://perso.telecom-paristech.fr/eagan/class/igr204/baby-names
 
 ## Setup
