@@ -12,9 +12,17 @@ Install the Python requirements:
 python -m pip install -r requirements.txt
 ```
 
-The original chloropleth notebook has been split into standalone sketches. Each
-`sketch_*.ipynb` notebook includes the setup it needs, so sketches can be run
-independently.
+Each standalone notebook contains one visualization:
+
+- [sketch_1_5_streamgraph.ipynb](sketch_1_5_streamgraph.ipynb) — evolution over time, Top-N streamgraph
+- [sketch_1_2_leaderboard.ipynb](sketch_1_2_leaderboard.ipynb) — evolution over time, leaderboard
+- [sketch_1_13_compare.ipynb](sketch_1_13_compare.ipynb) — evolution over time, compare names
+- [sketch_2_4_map.ipynb](sketch_2_4_map.ipynb) — regional effect, choropleth map
+- [sketch_2_2_heatmap.ipynb](sketch_2_2_heatmap.ipynb) — regional effect, name x department heatmap
+- [sketch_2_6_small_multiples.ipynb](sketch_2_6_small_multiples.ipynb) — regional effect, small multiples
+- [sketch_3_5_scatter.ipynb](sketch_3_5_scatter.ipynb) — gender, boys-vs-girls share scatter
+- [sketch_3_2_violin.ipynb](sketch_3_2_violin.ipynb) — gender, diverging gender bars
+- [sketch_3_3_positional.ipynb](sketch_3_3_positional.ipynb) — gender, names by gender lean
 
 Run one sketch:
 
@@ -30,30 +38,36 @@ bash run_all.sh
 
 On Windows, use the matching `.bat` scripts.
 
-## Notebooks
-
-- `sketch_1_5_streamgraph.ipynb` — evolution over time, Top-N streamgraph
-- `sketch_1_2_leaderboard.ipynb` — evolution over time, leaderboard
-- `sketch_1_13_compare.ipynb` — evolution over time, compare names
-- `sketch_2_4_map.ipynb` — regional effect, choropleth map
-- `sketch_2_2_heatmap.ipynb` — regional effect, name x department heatmap
-- `sketch_2_6_small_multiples.ipynb` — regional effect, small multiples
-- `sketch_3_5_scatter.ipynb` — gender, boys-vs-girls share scatter
-- `sketch_3_2_violin.ipynb` — gender, diverging gender bars
-- `sketch_3_3_positional.ipynb` — gender, names by gender lean
-
 ## Selected visualizations
 
 These are the screenshots of the options we implemented.
 
 ### Question 1: Evolution over time
 
+Chosen visualization:
+
 ![Streamgraph](sketch_1_5_streamgraph.png)
+
+Alternative visualizations:
+
+<img src="sketch_1_2_leaderboard.png" alt="Leaderboard" width="49%"> <img src="sketch_1_13_slices.png" alt="Compare names" width="49%">
 
 ### Question 2: Regional effect
 
+Chosen visualization:
+
 ![Heatmap](sketch_2_2_heatmap.png)
+
+Alternative visualizations:
+
+<img src="sketch_2_4_map_select.png" alt="Choropleth map" width="49%"> <img src="sketch_2_6_small_multiples.png" alt="Small multiple maps" width="49%">
 
 ### Question 3: Gender effect
 
+Chosen visualization:
+
 ![Scatter plot](sketch_3_5_scatter.png)
+
+Alternative visualizations:
+
+<img src="sketch_3_2_violin.png" alt="Diverging gender bars" width="49%"> <img src="sketch_3_3_positional.png" alt="Names by gender lean" width="49%">
