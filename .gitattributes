@@ -1,2 +1,5 @@
 Chloropleth[[:space:]]maps[[:space:]]in[[:space:]]Altair_9sketches/*.json filter=lfs diff=lfs merge=lfs -text
 Chloropleth[[:space:]]maps[[:space:]]in[[:space:]]Altair_9sketches/*.csv filter=lfs diff=lfs merge=lfs -text
+dpt2020.csv filter=lfs diff=lfs merge=lfs -text
+altair-data-b2e6a0aa9d3ff09c730aa861095f079e.json filter=lfs diff=lfs merge=lfs -text
+altair_dn_decade.json filter=lfs diff=lfs merge=lfs -text
