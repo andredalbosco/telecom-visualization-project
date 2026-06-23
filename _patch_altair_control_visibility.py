@@ -37,6 +37,107 @@ CONTROL_PATCHES = [
 ]
 
 
+# Toggle patches: a SELECT control whose value shows exactly one of several rows
+# (e.g. V3 "Time granularity" -> show the Decade slider OR the Year slider).
+CONTROL_TOGGLES = [
+    {
+        "key": "v3_time_granularity",
+        "required": ["Time granularity", "by year"],
+        "select_label": "Time granularity",
+        "groups": [
+            {"value": "decade", "labels": ["Decade"]},
+            {"value": "year", "labels": ["Year"]},
+        ],
+    },
+]
+
+
+def make_toggle_script(chart_id: str, toggle: dict) -> str:
+    payload = {
+        "chartId": chart_id,
+        "key": toggle["key"],
+        "selectLabel": toggle["select_label"],
+        "groups": toggle["groups"],
+    }
+    payload_json = json.dumps(payload, ensure_ascii=False)
+    return f"""
+<script type="text/javascript" data-codex-control-visibility="{toggle["key"]}">
+(function(config) {{
+  function normalise(text) {{ return (text || "").replace(/\\s+/g, " ").trim(); }}
+
+  function install() {{
+    var root = document.getElementById(config.chartId);
+    if (!root) {{ return false; }}
+    if (root.dataset["codexVisibility" + config.key]) {{ return true; }}
+
+    var scopes = [root];
+    if (root.parentElement) {{ scopes.push(root.parentElement); }}
+
+    var rows = [];
+    scopes.forEach(function(scope) {{
+      Array.prototype.forEach.call(scope.querySelectorAll(".vega-bind"), function(row) {{
+        rows.push(row);
+      }});
+    }});
+    if (!rows.length) {{
+      scopes.forEach(function(scope) {{
+        Array.prototype.forEach.call(scope.querySelectorAll("label"), function(label) {{
+          rows.push(label.closest("div") || label.parentElement || label);
+        }});
+      }});
+    }}
+    var seen = new Set();
+    rows = rows.filter(function(row) {{
+      if (!row || seen.has(row)) {{ return false; }}
+      seen.add(row);
+      return !!row.querySelector("input, select");
+    }});
+
+    function rowStartsWith(row, label) {{
+      return normalise(row.textContent).indexOf(label) === 0;
+    }}
+    function findRow(label) {{
+      return rows.find(function(row) {{ return rowStartsWith(row, label); }});
+    }}
+
+    var selRow = findRow(config.selectLabel);
+    if (!selRow) {{ return false; }}
+    var sel = selRow.querySelector("select, input");
+    if (!sel) {{ return false; }}
+
+    function update() {{
+      var v = sel.value;
+      config.groups.forEach(function(group) {{
+        var show = group.value === v;
+        group.labels.forEach(function(label) {{
+          var row = findRow(label);
+          if (row) {{ row.style.display = show ? "" : "none"; }}
+        }});
+      }});
+    }}
+
+    sel.addEventListener("input", update);
+    sel.addEventListener("change", update);
+    root.dataset["codexVisibility" + config.key] = "1";
+    update();
+    return true;
+  }}
+
+  if (!install()) {{
+    var root = document.getElementById(config.chartId);
+    var observer = new MutationObserver(function() {{
+      if (install()) {{ observer.disconnect(); }}
+    }});
+    if (root) {{ observer.observe(root, {{childList: true, subtree: true}}); }}
+    [50, 100, 250, 500, 1000, 2000].forEach(function(delay) {{
+      window.setTimeout(install, delay);
+    }});
+  }}
+}})({payload_json});
+</script>
+"""
+
+
 def html_as_text(value: object) -> str:
     if isinstance(value, list):
         return "".join(str(part) for part in value)
@@ -182,6 +283,19 @@ def patch_html(html: str) -> tuple[str, int]:
             continue
         html += make_patch_script(match.group(1), patch)
         applied += 1
+
+    for toggle in CONTROL_TOGGLES:
+        marker = f'data-codex-control-visibility="{toggle["key"]}"'
+        if marker in html:
+            continue
+        if not all(required in html for required in toggle["required"]):
+            continue
+
+        match = ALT_ID_RE.search(html)
+        if not match:
+            continue
+        html += make_toggle_script(match.group(1), toggle)
+        applied += 1
     return html, applied
 
 
@@ -203,7 +317,7 @@ def patch_notebook(path: Path) -> int:
     metadata = nb.setdefault("metadata", {})
     metadata["altair_control_visibility_patched"] = {
         "patches_applied": applied,
-        "patch_keys": [patch["key"] for patch in CONTROL_PATCHES],
+        "patch_keys": [p["key"] for p in CONTROL_PATCHES] + [t["key"] for t in CONTROL_TOGGLES],
     }
     path.write_text(json.dumps(nb, ensure_ascii=False, indent=1), encoding="utf-8")
     return applied
