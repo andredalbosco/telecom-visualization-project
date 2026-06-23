@@ -1,0 +1,94 @@
+<!doctype html>
+<notebook theme="air">
+  <title>Names</title>
+
+  <script id="1" type="text/markdown">
+    # Names
+
+    All names ranked by popularity, measured by total recorded births.
+  </script>
+
+  <script id="2" type="module" pinned="">
+    const births = await d3.dsv(";", "/data/dpt2020.csv", row => ({
+      sex: row.sexe === "1" ? "male" : row.sexe === "2" ? "female" : row.sexe,
+      name: row.preusuel,
+      birth_year: row.annais === "XXXX" ? null : +row.annais,
+      department: row.dpt,
+      births: +row.nombre,
+      is_rare_name: row.preusuel === "_PRENOMS_RARES",
+      is_unknown_department: row.dpt === "XX"
+    }));
+
+    const namedBirths = births.filter(d => !d.is_rare_name);
+
+    const namesByPopularity = Array.from(
+      d3.rollup(
+        namedBirths,
+        rows => ({
+          births: d3.sum(rows, d => d.births),
+          male_births: d3.sum(rows, d => d.sex === "male" ? d.births : 0),
+          female_births: d3.sum(rows, d => d.sex === "female" ? d.births : 0),
+          first_year: d3.min(rows, d => d.birth_year),
+          last_year: d3.max(rows, d => d.birth_year)
+        }),
+        d => d.name
+      ),
+      ([name, values]) => ({
+        name,
+        births: values.births,
+        male_births: values.male_births,
+        female_births: values.female_births,
+        first_year: values.first_year,
+        last_year: values.last_year
+      })
+    ).sort((a, b) => d3.descending(a.births, b.births) || d3.ascending(a.name, b.name));
+
+    const totalNamedBirths = d3.sum(namesByPopularity, d => d.births);
+  </script>
+
+  <script id="3" type="module" pinned="">
+    Inputs.table(
+      namesByPopularity.map((d, i) => ({
+        rank: i + 1,
+        name: d.name,
+        births: d.births,
+        male_births: d.male_births,
+        female_births: d.female_births,
+        first_year: d.first_year,
+        last_year: d.last_year
+      })),
+      {
+        columns: [
+          "rank",
+          "name",
+          "births",
+          "male_births",
+          "female_births",
+          "first_year",
+          "last_year"
+        ],
+        header: {
+          rank: "Rank",
+          name: "Name",
+          births: "Total births",
+          male_births: "Male births",
+          female_births: "Female births",
+          first_year: "First year",
+          last_year: "Last year"
+        },
+        format: {
+          births: d3.format(","),
+          male_births: d3.format(","),
+          female_births: d3.format(","),
+          first_year: d3.format("d"),
+          last_year: d3.format("d")
+        },
+        rows: 25
+      }
+    )
+  </script>
+
+  <script id="4" type="text/markdown">
+    ${namesByPopularity.length.toLocaleString("en-US")} names, ${totalNamedBirths.toLocaleString("en-US")} total named births.
+  </script>
+</notebook>
